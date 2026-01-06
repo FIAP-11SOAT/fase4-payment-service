@@ -25,7 +25,7 @@ resource "aws_lb_listener_rule" "service_rule" {
   }
   condition {
     path_pattern {
-      values = ["/order*", "/order/*"]
+      values = ["/payment*", "/payment/*"]
     }
   }
 }

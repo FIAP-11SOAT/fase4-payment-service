@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket = "fase4-terraform-state"
-    key    = "fase4-order-service/terraform.tfstate"
+    key    = "fase4-payment-service/terraform.tfstate"
     region = "us-east-1"
   }
 

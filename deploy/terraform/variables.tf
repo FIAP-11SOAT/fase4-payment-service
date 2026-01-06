@@ -25,5 +25,5 @@ locals {
 
 locals {
   aws_region   = "us-east-1"
-  project_name = "fase4-order-service"
+  project_name = "fase4-payment-service"
 }
