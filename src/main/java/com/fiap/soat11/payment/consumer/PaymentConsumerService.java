@@ -2,6 +2,7 @@ package com.fiap.soat11.payment.consumer;
 
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.soat11.payment.dto.ConsumerData;
 import com.fiap.soat11.payment.dto.ConsumerMeta;
 import com.fiap.soat11.payment.dto.ConsumerPayloadOrder;
@@ -18,10 +19,12 @@ public class PaymentConsumerService {
 
     private final PaymentService paymentService;
     private final SqsTemplate sqsTemplate;
+    private final ObjectMapper objectMapper;
 
-    public PaymentConsumerService(PaymentService paymentService, SqsTemplate sqsTemplate) {
+    public PaymentConsumerService(PaymentService paymentService, SqsTemplate sqsTemplate, ObjectMapper objectMapper) {
         this.paymentService = paymentService;
         this.sqsTemplate = sqsTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public void handler(ConsumerData data) {
@@ -45,10 +48,12 @@ public class PaymentConsumerService {
                 return;
             }
 
+            String customerName = order.customerName() != null ? order.customerName() : "Anonymous User";
+
             Payment payment = paymentService.createPayment(
                     order.id().toString(),
                     order.amount(),
-                    order.customerName());
+                    customerName);
 
             System.out.println("Pagamento criado com sucesso: " + payment);
 
@@ -63,7 +68,12 @@ public class PaymentConsumerService {
                                     payment.getOrderID(), 
                                     payment.getId()
                                 )));
-            sqsTemplate.send("fase4-order-service-queue", messageData);
+            
+            String messageJson = objectMapper.writeValueAsString(messageData);
+
+            System.out.println("Enviando mensagem para fila SQS `fase4-order-service-queue`: " + messageJson);
+            
+            sqsTemplate.send("fase4-order-service-queue", messageJson);
 
         } catch (Exception e) {
             System.err.println("Erro ao processar pagamento do pedido: " + e.getMessage());

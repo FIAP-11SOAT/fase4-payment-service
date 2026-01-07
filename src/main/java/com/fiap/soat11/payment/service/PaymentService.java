@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.soat11.payment.dto.ConsumerMeta;
 import com.fiap.soat11.payment.dto.SendOrderMessageData;
 import com.fiap.soat11.payment.dto.SendOrderPayload;
@@ -32,16 +33,19 @@ public class PaymentService {
     private final MarcadoPagoClient marcadoPagoClient;
     private final String webhookUrl;
     private final SqsTemplate sqsTemplate;
+    private final ObjectMapper objectMapper;
 
     public PaymentService(
             PaymentRepository paymentRepository,
             MarcadoPagoClient marcadoPagoClient,
             @Value("${fase4.payment.service.marcadopago.webhookUrl}") String webhookUrl,
-            SqsTemplate sqsTemplate) {
+            SqsTemplate sqsTemplate,
+            ObjectMapper objectMapper) {
         this.paymentRepository = paymentRepository;
         this.marcadoPagoClient = marcadoPagoClient;
         this.webhookUrl = webhookUrl;
         this.sqsTemplate = sqsTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public Payment createPayment(String orderID, Double amount, String customerName) {
@@ -110,8 +114,16 @@ public class PaymentService {
                         new SendOrderPayloadPayment(
                                 payment.getOrderID(),
                                 payment.getId()
-                            )));
-        sqsTemplate.send("fase4-order-service-queue", messageData);
+                             )));
+
+        try {
+            // Serializar para JSON antes de enviar
+            String messageJson = objectMapper.writeValueAsString(messageData);
+            sqsTemplate.send("fase4-order-service-queue", messageJson);
+        } catch (Exception e) {
+            logger.error("Erro ao enviar mensagem para SQS: {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar mensagem para SQS", e);
+        }
     }
 
     public Payment updatePaymentStatus(String paymentId, PaymentStatusEnum status) {
