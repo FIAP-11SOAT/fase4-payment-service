@@ -4,5 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record SendOrderPayloadPayment(
     @JsonProperty("order_id")
-    String orderID
+    String orderID,
+    @JsonProperty("payment_id")
+    String paymentID
 ) {}

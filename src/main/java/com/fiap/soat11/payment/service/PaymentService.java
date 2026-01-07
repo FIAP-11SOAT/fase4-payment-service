@@ -108,7 +108,9 @@ public class PaymentService {
                         eventName),
                 new SendOrderPayload(
                         new SendOrderPayloadPayment(
-                                payment.getOrderID())));
+                                payment.getOrderID(),
+                                payment.getId()
+                            )));
         sqsTemplate.send("fase4-order-service-queue", messageData);
     }
 
