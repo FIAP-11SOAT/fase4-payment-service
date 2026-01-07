@@ -38,25 +38,23 @@ public class PaymentController {
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody WebhookPayloadRequest webhookPayload) {
-        try {
-            if (webhookPayload == null) {
-                return ResponseEntity.badRequest().body("Invalid webhook payload");
-            }
-
-            // Aqui você deve implementar a lógica específica baseada no tipo de webhook
-            // Por exemplo, se for uma atualização de status de pagamento:
-            // String integrationId = webhookPayload.getData().getId();
-            // PaymentStatusEnum newStatus = determineStatusFromWebhook(webhookPayload);
-            // paymentService.updatePaymentStatusByIntegrationId(integrationId, newStatus);
-            
-            System.out.println("Webhook recebido: " + webhookPayload);
-            
-            return ResponseEntity.ok("Webhook processed successfully");
-            
-        } catch (Exception e) {
-            System.err.println("Erro ao processar webhook: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error processing webhook: " + e.getMessage());
+        if (webhookPayload == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payload inválido");
         }
+
+        System.out.println("Recebido webhook: " + webhookPayload);
+
+        if (webhookPayload.topic() == null || webhookPayload.topic().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tópico do webhook ausente");
+        }
+
+        if (webhookPayload.topic().equals("payment")) {
+            String paymentId = webhookPayload.resource();
+            this.paymentService.updatePaymentWithWebHook(paymentId);
+        } else {
+            System.out.println("Tópico de webhook não tratado: " + webhookPayload.topic());
+        }
+
+        return ResponseEntity.ok("Webhook recebido com sucesso");
     }
 }
