@@ -123,3 +123,4 @@ jobs:
             --cluster fase4-infra-microservices-ecs-cluster \
             --service fase4-payment-service-service  \
             --force-new-deployment
+            
