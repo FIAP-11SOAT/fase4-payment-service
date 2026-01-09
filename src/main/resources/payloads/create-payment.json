@@ -1,0 +1,16 @@
+{
+    "meta": {
+        "event_id": "evt-001",
+        "event_date": "2025-12-24T10:00:00Z",
+        "event_source": "payment-service",
+        "event_target": "order-service",
+        "event_name": "order-payment-requested-event"
+    },
+    "payload": {
+        "order": {
+            "id": "597b145f-dcec-4efd-af04-68cedbe4662d",
+            "amount": 200.75,
+            "customer_name": "Matheus Ribeiro"
+        }
+    }
+}
