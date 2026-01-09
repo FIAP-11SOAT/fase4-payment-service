@@ -28,6 +28,9 @@ public class PaymentConsumerService {
     }
 
     public void handler(ConsumerData data) {
+        System.out.println("Received event: " + data.meta().eventName());
+        System.out.println("Payload: " + data.payload().toString());
+
         PaymentEventType eventType = PaymentEventType.fromEventName(data.meta().eventName());
 
         switch (eventType) {

@@ -18,7 +18,7 @@ resource "aws_lb_target_group" "service_tg" {
 
 resource "aws_lb_listener_rule" "service_rule" {
   listener_arn = local.aws_infra_secrets["ALB_LISTENER_ARN"]
-  priority     = 10
+  priority     = 14
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.service_tg.arn

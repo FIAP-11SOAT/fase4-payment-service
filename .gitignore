@@ -33,3 +33,10 @@ build/
 .vscode/
 
 deploy/test
+
+
+### VS Code ###
+.vscode/
+
+.terraform/
+.terraform.lock.hcl

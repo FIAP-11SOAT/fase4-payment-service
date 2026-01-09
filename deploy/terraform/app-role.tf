@@ -37,6 +37,39 @@ data "aws_iam_policy_document" "document_ecs_task_role" {
     ]
     resources = [aws_secretsmanager_secret.secrets.arn]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl"
+    ]
+    resources = [aws_sqs_queue.payment_service_queue.arn]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:*",
+    ]
+    resources = [
+      aws_dynamodb_table.payments.arn,
+      "${aws_dynamodb_table.payments.arn}/index/*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage",
+      "sqs:GetQueueUrl"
+    ]
+    resources = [
+      "arn:aws:sqs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:fase4-order-service-queue"
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "ecs_additional_policy" {
